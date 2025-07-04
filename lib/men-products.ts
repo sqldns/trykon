@@ -42,5 +42,19 @@ export const menProducts: MenProduct[] = [
     description: "Combines warmth, flexibility, and a premium look—perfect for both training and recovery.",
     drop: true,
   },
+  {
+    id: "shadowtee2024",
+    name: "Shadow Tee",
+    price: 1599,
+    originalPrice: 4999,
+    image: "/images/drop-hero.png",
+    category: "Limited",
+    sizes: ["S", "M", "L", "XL"],
+    colors: ["Black"],
+    rating: 5.0,
+    reviews: 0,
+    description: "Exclusive Shadow Collection piece. Limited edition, premium quality.",
+    drop: true,
+  },
   // Add more products here easily!
 ] 

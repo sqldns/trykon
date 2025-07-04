@@ -39,16 +39,6 @@ export default function MenPage() {
       <ThreeBackground />
       <Navbar />
 
-      {/* Premium Drop & Men Section Buttons */}
-      <div className="relative z-20 flex flex-col md:flex-row gap-4 justify-center items-center mt-8 mb-8">
-        <Link href="#new-drop" className="bg-gradient-to-r from-yellow-400 via-pink-500 to-red-500 text-black font-bold px-8 py-4 rounded-2xl shadow-lg text-xl hover:scale-105 transition-transform border-4 border-white/10 animate-pulse">
-          🔥 Check Our New Drop
-        </Link>
-        <Link href="#men-section" className="bg-white/10 text-white font-bold px-8 py-4 rounded-2xl shadow-lg text-xl hover:bg-white/20 transition-colors border-2 border-white/10">
-          🏋️‍♂️ Hit the Men's Section
-        </Link>
-      </div>
-
       <div className="relative z-10 pt-32 pb-20" id="men-section">
         <div className="max-w-7xl mx-auto px-6">
           {/* Header */}

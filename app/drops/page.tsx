@@ -3,10 +3,11 @@
 import type React from "react"
 
 import { motion } from "framer-motion"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Navbar } from "@/components/layout/navbar"
 import { ThreeBackground } from "@/components/ui/three-background"
 import { Clock, Zap, Star, ArrowRight } from "lucide-react"
+import { useMotionValue, useTransform } from "framer-motion"
 
 function CountdownTimer() {
   const [timeLeft, setTimeLeft] = useState({
@@ -69,6 +70,19 @@ function CountdownTimer() {
 export default function DropsPage() {
   const [isNotifyEnabled, setIsNotifyEnabled] = useState(false)
   const [email, setEmail] = useState("")
+  const parallaxRef = useRef<HTMLDivElement>(null)
+  const y = useMotionValue(0)
+  const yParallax = useTransform(y, [0, 500], [0, -60])
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (parallaxRef.current) {
+        y.set(window.scrollY)
+      }
+    }
+    window.addEventListener("scroll", handleScroll)
+    return () => window.removeEventListener("scroll", handleScroll)
+  }, [y])
 
   const handleNotifyMe = (e: React.FormEvent) => {
     e.preventDefault()
@@ -84,6 +98,13 @@ export default function DropsPage() {
     <div className="min-h-screen bg-black relative overflow-hidden">
       <ThreeBackground />
       <Navbar />
+
+      {/* Parallax Layer */}
+      <motion.div
+        ref={parallaxRef}
+        style={{ y: yParallax }}
+        className="fixed inset-0 z-0 pointer-events-none bg-gradient-to-br from-purple-900/40 via-black/60 to-pink-900/40 opacity-60"
+      />
 
       <div className="relative z-10 pt-32 pb-20">
         <div className="max-w-7xl mx-auto px-6">
@@ -205,6 +226,7 @@ export default function DropsPage() {
               initial={{ opacity: 0, x: 50 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 1, delay: 0.3 }}
+              whileHover={{ scale: 1.03, boxShadow: '0 8px 32px #a0f' }}
             >
               <div className="relative">
                 {/* Glow Effect */}
@@ -233,8 +255,8 @@ export default function DropsPage() {
                           <p className="text-white/70 text-sm">Premium Collection</p>
                         </div>
                         <div className="text-right">
-                          <p className="text-white font-bold text-lg">₹4,999</p>
-                          <p className="text-white/50 text-sm line-through">₹6,999</p>
+                          <p className="text-yellow-400 font-bold text-2xl">₹1,599</p>
+                          <p className="text-white/50 text-sm line-through">₹4,999</p>
                         </div>
                       </div>
                     </div>
