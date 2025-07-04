@@ -69,7 +69,8 @@ export default async function handler(req, res) {
       `
     })
   } catch (e) {
-    // Email send failure should not block the claim, but you may want to log this
+    console.error('Resend error:', e);
+    return res.status(500).json({ error: 'Failed to send email', details: e.message || e.toString() });
   }
 
   return res.status(200).json({ success: true })
