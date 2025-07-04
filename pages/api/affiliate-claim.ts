@@ -1,20 +1,20 @@
-import { NextRequest, NextResponse } from "next/server"
-import fs from "fs"
-import path from "path"
-import { Resend } from "resend"
+import type { NextApiRequest, NextApiResponse } from 'next'
+import fs from 'fs'
+import path from 'path'
+import { Resend } from 'resend'
 
 const resend = new Resend('re_fZhiBXnP_QH2HvfGWeaL2eWv88PyaaBxF')
-const AFFILIATE_FILE = process.env.VERCEL ? "/tmp/affiliate-claims.json" : path.join(process.cwd(), "affiliate-claims.json")
-const RATE_LIMIT = 1 // 1 claim per IP
+const AFFILIATE_FILE = process.env.VERCEL ? '/tmp/affiliate-claims.json' : path.join(process.cwd(), 'affiliate-claims.json')
 
-export async function POST(req: NextRequest) {
-  const { email, ip } = await req.json()
-  if (!email || !ip) return NextResponse.json({ error: "Missing email or IP" }, { status: 400 })
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
+  const { email, ip } = req.body
+  if (!email || !ip) return res.status(400).json({ error: 'Missing email or IP' })
 
   let claims: { email: string; ip: string; date: string }[] = []
   try {
     if (fs.existsSync(AFFILIATE_FILE)) {
-      const data = fs.readFileSync(AFFILIATE_FILE, "utf-8")
+      const data = fs.readFileSync(AFFILIATE_FILE, 'utf-8')
       claims = JSON.parse(data)
     }
   } catch (e) {
@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
   // Check for existing claim by IP or email
   const alreadyClaimed = claims.find(c => c.ip === ip || c.email === email)
   if (alreadyClaimed) {
-    return NextResponse.json({ error: "Already claimed" }, { status: 429 })
+    return res.status(429).json({ error: 'Already claimed' })
   }
 
   // Add new claim
@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
   try {
     fs.writeFileSync(AFFILIATE_FILE, JSON.stringify(claims, null, 2))
   } catch (e) {
-    return NextResponse.json({ error: "Failed to save claim" }, { status: 500 })
+    return res.status(500).json({ error: 'Failed to save claim' })
   }
 
   // Send affiliate email using Resend
@@ -73,5 +73,5 @@ export async function POST(req: NextRequest) {
     // Email send failure should not block the claim, but you may want to log this
   }
 
-  return NextResponse.json({ success: true })
+  return res.status(200).json({ success: true })
 } 
