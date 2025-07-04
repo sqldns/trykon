@@ -2,7 +2,7 @@ import fs from 'fs'
 import path from 'path'
 import { Resend } from 'resend'
 
-const resend = new Resend('re_fZHiBXnP_QH2HvfGWeaL2eWv88PyaaBxF')
+const resend = new Resend('re_SRTxciYw_8QfCNY8r45eubUQMW3TxDkmG')
 const AFFILIATE_FILE = process.env.VERCEL ? '/tmp/affiliate-claims.json' : path.join(process.cwd(), 'affiliate-claims.json')
 
 export default async function handler(req, res) {
@@ -38,7 +38,7 @@ export default async function handler(req, res) {
   // Send affiliate email using Resend
   try {
     await resend.emails.send({
-      from: 'affiliates@trykonsupport.com',
+      from: 'onboarding@resend.dev',
       to: email,
       subject: "Congrats! You're now an official TRYKON Affiliate",
       html: `
