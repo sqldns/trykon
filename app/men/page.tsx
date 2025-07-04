@@ -6,81 +6,7 @@ import Link from "next/link"
 import { Navbar } from "@/components/layout/navbar"
 import { ThreeBackground } from "@/components/ui/three-background"
 import { Grid, List } from "lucide-react"
-
-const menProducts = [
-  {
-    id: "1",
-    name: "Compression Tank",
-    price: 2499,
-    originalPrice: 2999,
-    image: "/placeholder.svg?height=400&width=300",
-    category: "Tanks",
-    sizes: ["S", "M", "L", "XL"],
-    colors: ["Black", "White", "Navy"],
-    rating: 4.8,
-    reviews: 124,
-  },
-  {
-    id: "2",
-    name: "Performance Shorts",
-    price: 1999,
-    originalPrice: 2299,
-    image: "/placeholder.svg?height=400&width=300",
-    category: "Shorts",
-    sizes: ["S", "M", "L", "XL"],
-    colors: ["Black", "Gray", "Navy"],
-    rating: 4.7,
-    reviews: 89,
-  },
-  {
-    id: "3",
-    name: "Training Tee",
-    price: 1799,
-    originalPrice: 1999,
-    image: "/placeholder.svg?height=400&width=300",
-    category: "T-Shirts",
-    sizes: ["S", "M", "L", "XL", "XXL"],
-    colors: ["Black", "White", "Gray", "Navy"],
-    rating: 4.9,
-    reviews: 156,
-  },
-  {
-    id: "4",
-    name: "Flex Joggers",
-    price: 2799,
-    originalPrice: 3199,
-    image: "/placeholder.svg?height=400&width=300",
-    category: "Joggers",
-    sizes: ["S", "M", "L", "XL"],
-    colors: ["Black", "Gray", "Navy"],
-    rating: 4.6,
-    reviews: 78,
-  },
-  {
-    id: "5",
-    name: "Power Hoodie",
-    price: 3499,
-    originalPrice: 3999,
-    image: "/placeholder.svg?height=400&width=300",
-    category: "Hoodies",
-    sizes: ["S", "M", "L", "XL", "XXL"],
-    colors: ["Black", "Gray", "Navy"],
-    rating: 4.8,
-    reviews: 203,
-  },
-  {
-    id: "6",
-    name: "Elite Tank",
-    price: 2299,
-    originalPrice: 2699,
-    image: "/placeholder.svg?height=400&width=300",
-    category: "Tanks",
-    sizes: ["S", "M", "L", "XL"],
-    colors: ["Black", "White", "Red"],
-    rating: 4.7,
-    reviews: 92,
-  },
-]
+import { menProducts } from "@/lib/men-products"
 
 const categories = ["All", "Tanks", "Shorts", "T-Shirts", "Joggers", "Hoodies"]
 const sortOptions = ["Featured", "Price: Low to High", "Price: High to Low", "Newest", "Best Rating"]
@@ -113,7 +39,17 @@ export default function MenPage() {
       <ThreeBackground />
       <Navbar />
 
-      <div className="relative z-10 pt-32 pb-20">
+      {/* Premium Drop & Men Section Buttons */}
+      <div className="relative z-20 flex flex-col md:flex-row gap-4 justify-center items-center mt-8 mb-8">
+        <Link href="#new-drop" className="bg-gradient-to-r from-yellow-400 via-pink-500 to-red-500 text-black font-bold px-8 py-4 rounded-2xl shadow-lg text-xl hover:scale-105 transition-transform border-4 border-white/10 animate-pulse">
+          🔥 Check Our New Drop
+        </Link>
+        <Link href="#men-section" className="bg-white/10 text-white font-bold px-8 py-4 rounded-2xl shadow-lg text-xl hover:bg-white/20 transition-colors border-2 border-white/10">
+          🏋️‍♂️ Hit the Men's Section
+        </Link>
+      </div>
+
+      <div className="relative z-10 pt-32 pb-20" id="men-section">
         <div className="max-w-7xl mx-auto px-6">
           {/* Header */}
           <motion.div
@@ -195,14 +131,14 @@ export default function MenPage() {
             {sortedProducts.map((product, index) => (
               <motion.div
                 key={product.id}
-                className={`bg-white/5 backdrop-blur-sm rounded-2xl overflow-hidden border border-white/10 group hover:bg-white/10 transition-all duration-300 ${
-                  viewMode === "list" ? "flex gap-6" : ""
-                }`}
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-                whileHover={{ y: -10, scale: 1.02 }}
+                className={`relative bg-white/5 backdrop-blur-sm rounded-2xl overflow-hidden border border-white/10 group hover:bg-white/10 transition-all duration-300 ${viewMode === "list" ? "flex gap-6" : ""}`}
+                id={product.drop ? "new-drop" : undefined}
               >
+                {product.drop && (
+                  <span className="absolute top-4 left-4 bg-gradient-to-r from-yellow-400 via-pink-500 to-red-500 text-black font-bold px-4 py-1 rounded-full text-xs shadow-lg animate-pulse z-10">
+                    NEW DROP
+                  </span>
+                )}
                 <div className={`${viewMode === "list" ? "w-64 flex-shrink-0" : "aspect-[3/4]"} overflow-hidden`}>
                   <img
                     src={product.image || "/placeholder.svg"}

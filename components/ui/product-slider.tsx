@@ -1,11 +1,10 @@
 "use client"
 
 import { motion, useScroll, useTransform } from "framer-motion"
-import { useRef } from "react"
+import { useRef, useState, useEffect } from "react"
 import Link from "next/link"
 import { gsap } from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
-import { useEffect } from "react"
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger)
@@ -86,73 +85,55 @@ const products = [
   },
 ]
 
+const productMessages = [
+  {
+    title: "Compression Tee",
+    description: "Our signature Compression Tee is engineered for performance, comfort, and style. Designed for Indian athletes who demand the best. Sweat-wicking, ultra-light, and built to last through every rep.",
+    details: [
+      "Ultra-breathable fabric",
+      "Ergonomic fit for all body types",
+      "Available in multiple colors",
+      "Perfect for intense training and daily wear",
+    ],
+  },
+  {
+    title: "Compression Hoodie",
+    description: "The Compression Hoodie combines warmth, flexibility, and a premium look—perfect for both training and recovery. Stay sharp, stay warm, and look your best in and out of the gym.",
+    details: [
+      "Soft, stretchable fleece",
+      "Modern athletic silhouette",
+      "Zippered pockets for essentials",
+      "Ideal for warm-up, cool-down, and street style",
+    ],
+  },
+  {
+    title: "Upcoming Goal",
+    description: "We're working hard to launch shorts, socks, and everything else you need to complete your gymwear collection. Stay tuned for the next evolution of Indian fitness apparel!",
+    details: [
+      "Premium shorts for every workout",
+      "Performance socks for comfort and support",
+      "Accessories and more coming soon",
+      "Be the first to know—follow us on Instagram!",
+    ],
+  },
+  {
+    title: "Why TRYKON?",
+    description: "We're not just a brand, we're a movement. Trusted by gym bros from day 0, TRYKON is redefining Indian gymwear with guts, grit, and style.",
+    details: [
+      "100% Made in India",
+      "Loved by 10,000+ athletes",
+      "Engineered for champions",
+      "Join the future of fitness fashion",
+    ],
+  },
+]
+
 export function ProductSlider() {
-  const containerRef = useRef<HTMLDivElement>(null)
-  const sliderRef = useRef<HTMLDivElement>(null)
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start end", "end start"],
-  })
-
-  const x = useTransform(scrollYProgress, [0, 1], ["0%", "-50%"])
-
-  useEffect(() => {
-    if (typeof window !== "undefined" && sliderRef.current) {
-      const slider = sliderRef.current
-      const cards = slider.querySelectorAll(".product-card")
-
-      gsap.fromTo(
-        cards,
-        {
-          opacity: 0,
-          y: 100,
-          scale: 0.8,
-        },
-        {
-          opacity: 1,
-          y: 0,
-          scale: 1,
-          duration: 0.8,
-          stagger: 0.1,
-          ease: "power3.out",
-          scrollTrigger: {
-            trigger: slider,
-            start: "top 80%",
-            end: "bottom 20%",
-            toggleActions: "play none none reverse",
-          },
-        },
-      )
-
-      // Hover animations
-      cards.forEach((card) => {
-        const cardElement = card as HTMLElement
-        cardElement.addEventListener("mouseenter", () => {
-          gsap.to(cardElement, {
-            y: -20,
-            scale: 1.05,
-            duration: 0.3,
-            ease: "power2.out",
-          })
-        })
-
-        cardElement.addEventListener("mouseleave", () => {
-          gsap.to(cardElement, {
-            y: 0,
-            scale: 1,
-            duration: 0.3,
-            ease: "power2.out",
-          })
-        })
-      })
-    }
-  }, [])
-
   return (
-    <section ref={containerRef} className="py-20 bg-white overflow-hidden">
-      <div className="max-w-7xl mx-auto px-6">
+    <section className="py-20 bg-black overflow-hidden">
+      <div className="max-w-4xl mx-auto px-6">
         <motion.h2
-          className="text-4xl md:text-5xl font-bold text-black mb-12 text-center"
+          className="text-4xl md:text-5xl font-bold text-white mb-12 text-center"
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
@@ -160,38 +141,43 @@ export function ProductSlider() {
         >
           Featured Products
         </motion.h2>
-
-        <motion.div ref={sliderRef} className="flex gap-6 w-max" style={{ x }}>
-          {[...products, ...products].map((product, index) => (
-            <motion.div
-              key={`${product.id}-${index}`}
-              className="product-card flex-shrink-0 w-80 bg-gray-50 rounded-2xl overflow-hidden group hover:shadow-xl transition-shadow duration-300"
-            >
-              <div className="aspect-[3/4] overflow-hidden">
-                <img
-                  src={product.image || "/placeholder.svg"}
-                  alt={product.name}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                />
-              </div>
-              <div className="p-6">
-                <h3 className="text-xl font-semibold text-black mb-2">{product.name}</h3>
-                <p className="text-gray-600 mb-2">{product.description}</p>
-                <p className="text-gray-500 mb-4">{product.category}</p>
-                <div className="flex items-center justify-between">
-                  <span className="text-2xl font-bold text-black">₹{product.price}</span>
-                  <Link
-                    href={`/product/${product.id}`}
-                    className="bg-black text-white px-6 py-2 rounded-lg hover:bg-gray-800 transition-colors"
-                  >
-                    View
-                  </Link>
-                </div>
-              </div>
-            </motion.div>
-          ))}
+        <motion.div
+          className="relative w-full h-[340px] md:h-[400px] flex items-center justify-center"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.8 }}
+        >
+          <TextSlider messages={productMessages} />
         </motion.div>
       </div>
     </section>
+  )
+}
+
+function TextSlider({ messages }: { messages: typeof productMessages }) {
+  const [index, setIndex] = useState(0)
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setIndex((prev) => (prev + 1) % messages.length)
+    }, 5000)
+    return () => clearInterval(interval)
+  }, [messages.length])
+  return (
+    <motion.div
+      key={index}
+      initial={{ opacity: 0, y: 40 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -40 }}
+      transition={{ duration: 0.7 }}
+      className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-gray-900 via-black to-gray-800 rounded-3xl shadow-2xl p-10 border border-white/10"
+    >
+      <h3 className="text-3xl md:text-4xl font-extrabold text-yellow-400 mb-4 drop-shadow-lg">{messages[index].title}</h3>
+      <p className="text-white/90 text-lg md:text-2xl mb-6 max-w-2xl mx-auto">{messages[index].description}</p>
+      <ul className="text-white/80 text-base md:text-lg space-y-2 max-w-xl mx-auto list-disc pl-6">
+        {messages[index].details.map((d, i) => (
+          <li key={i}>{d}</li>
+        ))}
+      </ul>
+    </motion.div>
   )
 }
