@@ -6,13 +6,23 @@ import { GlowMenu } from "@/components/ui/glow-menu"
 import { useAuth } from "@/hooks/use-auth"
 import { useCart } from "@/hooks/use-cart"
 import { LogOut } from "lucide-react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Menu } from "lucide-react"
 
 export function Navbar() {
   const { isAuthenticated, user, logout } = useAuth()
   const { itemCount } = useCart()
   const [mobileOpen, setMobileOpen] = useState(false)
+
+  // Prevent background scroll when mobile menu is open
+  useEffect(() => {
+    if (mobileOpen) {
+      document.body.style.overflow = "hidden"
+    } else {
+      document.body.style.overflow = ""
+    }
+    return () => { document.body.style.overflow = "" }
+  }, [mobileOpen])
 
   return (
     <motion.header
@@ -107,10 +117,12 @@ export function Navbar() {
       {/* Mobile Drawer */}
       {mobileOpen && (
         <motion.div
-          className="md:hidden fixed inset-0 z-50 bg-black/70 flex flex-col items-center justify-center gap-8"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
+          className="md:hidden fixed inset-0 z-[100] bg-black/90 flex flex-col items-center justify-center gap-8 px-4 py-8 overflow-y-auto"
+          initial={{ opacity: 0, y: -40 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -40 }}
+          aria-modal="true"
+          role="dialog"
         >
           <button
             className="absolute top-6 right-6 text-white text-3xl"
@@ -119,37 +131,39 @@ export function Navbar() {
           >
             ×
           </button>
-          <GlowMenu itemCount={itemCount} />
-          <div className="flex flex-col gap-4 mt-8">
-            {isAuthenticated ? (
-              <>
-                <span className="text-white/80 text-lg text-center">Welcome, {user?.username}</span>
-                <button
-                  onClick={() => { logout(); setMobileOpen(false) }}
-                  className="flex items-center gap-2 text-white/80 hover:text-white transition-colors text-lg justify-center"
-                >
-                  <LogOut className="h-5 w-5" />
-                  Logout
-                </button>
-              </>
-            ) : (
-              <>
-                <Link
-                  href="/auth/signin"
-                  className="text-white/80 hover:text-white transition-colors text-lg font-medium text-center"
-                  onClick={() => setMobileOpen(false)}
-                >
-                  Sign In
-                </Link>
-                <Link
-                  href="/auth/signup"
-                  className="bg-white text-black px-6 py-3 rounded-lg hover:bg-white/90 transition-colors text-lg font-medium text-center"
-                  onClick={() => setMobileOpen(false)}
-                >
-                  Sign Up
-                </Link>
-              </>
-            )}
+          <div className="w-full flex flex-col items-center gap-8 mt-12">
+            <GlowMenu itemCount={itemCount} />
+            <div className="flex flex-col gap-4 w-full items-center">
+              {isAuthenticated ? (
+                <>
+                  <span className="text-white/80 text-lg text-center">Welcome, {user?.username}</span>
+                  <button
+                    onClick={() => { logout(); setMobileOpen(false) }}
+                    className="flex items-center gap-2 text-white/80 hover:text-white transition-colors text-lg justify-center"
+                  >
+                    <LogOut className="h-5 w-5" />
+                    Logout
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link
+                    href="/auth/signin"
+                    className="text-white/80 hover:text-white transition-colors text-lg font-medium text-center"
+                    onClick={() => setMobileOpen(false)}
+                  >
+                    Sign In
+                  </Link>
+                  <Link
+                    href="/auth/signup"
+                    className="bg-white text-black px-6 py-3 rounded-lg hover:bg-white/90 transition-colors text-lg font-medium text-center"
+                    onClick={() => setMobileOpen(false)}
+                  >
+                    Sign Up
+                  </Link>
+                </>
+              )}
+            </div>
           </div>
         </motion.div>
       )}
