@@ -1,17 +1,16 @@
-import type { NextApiRequest, NextApiResponse } from 'next'
 import fs from 'fs'
 import path from 'path'
 import { Resend } from 'resend'
 
-const resend = new Resend('re_fZhiBXnP_QH2HvfGWeaL2eWv88PyaaBxF')
+const resend = new Resend('re_fZHiBXnP_QH2HvfGWeaL2eWv88PyaaBxF')
 const AFFILIATE_FILE = process.env.VERCEL ? '/tmp/affiliate-claims.json' : path.join(process.cwd(), 'affiliate-claims.json')
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
   const { email, ip } = req.body
   if (!email || !ip) return res.status(400).json({ error: 'Missing email or IP' })
 
-  let claims: { email: string; ip: string; date: string }[] = []
+  let claims = []
   try {
     if (fs.existsSync(AFFILIATE_FILE)) {
       const data = fs.readFileSync(AFFILIATE_FILE, 'utf-8')
@@ -41,7 +40,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     await resend.emails.send({
       from: 'affiliates@trykonsupport.com',
       to: email,
-      subject: 'Congrats! You're now an official TRYKON Affiliate',
+      subject: "Congrats! You're now an official TRYKON Affiliate",
       html: `
         <div style="font-family: 'Inter', Arial, sans-serif; background: #0a0a0a; color: #fff; padding: 0; margin: 0;">
           <div style="max-width: 480px; margin: 40px auto; background: #18181b; border-radius: 18px; box-shadow: 0 8px 32px #0002; overflow: hidden; border: 1px solid #222;">
