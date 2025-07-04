@@ -1,10 +1,12 @@
 // Usage: node scripts/send-affiliate-discounts.js
-const fs = require('fs');
-const path = require('path');
+const { createClient } = require('@supabase/supabase-js');
 const { Resend } = require('resend');
 
 const resend = new Resend('re_SRTxciYw_8QfCNY8r45eubUQMW3TxDkmG');
-const AFFILIATE_FILE = path.join(__dirname, '../affiliate-claims.json');
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://asrwlhfacmcjbqeazfze.supabase.co',
+  process.env.SUPABASE_SERVICE_ROLE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFzcndsaGZhY21jamJxZWF6ZnplIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MTYzNjQ3NiwiZXhwIjoyMDY3MjEyNDc2fQ.cQToU3rf9xS1eyvc8Mi5LczlGs3G7sM10M72VwGx8Mc'
+);
 
 function randomDiscount() {
   // 4.99% to 14.99%, rounded to 2 decimals
@@ -12,14 +14,20 @@ function randomDiscount() {
 }
 
 async function sendDiscounts() {
-  if (!fs.existsSync(AFFILIATE_FILE)) {
-    console.log('No affiliate claims found.');
+  const { data: claims, error } = await supabase
+    .from('affiliate_claims')
+    .select('*')
+    .eq('notified', false);
+  if (error) {
+    console.error('Failed to fetch claims:', error);
     return;
   }
-  const claims = JSON.parse(fs.readFileSync(AFFILIATE_FILE, 'utf-8'));
+  if (!claims || claims.length === 0) {
+    console.log('No unnotified affiliate claims found.');
+    return;
+  }
   let sent = 0;
   for (const claim of claims) {
-    if (claim.notified) continue;
     const discount = randomDiscount();
     try {
       await resend.emails.send({
@@ -54,14 +62,17 @@ async function sendDiscounts() {
           </div>
         `
       });
-      claim.notified = true;
+      // Mark as notified
+      await supabase
+        .from('affiliate_claims')
+        .update({ notified: true })
+        .eq('id', claim.id);
       sent++;
       console.log(`Sent to ${claim.email} (${discount}%)`);
     } catch (e) {
       console.error(`Failed to send to ${claim.email}:`, e);
     }
   }
-  fs.writeFileSync(AFFILIATE_FILE, JSON.stringify(claims, null, 2));
   console.log(`Done. Sent ${sent} discount emails.`);
 }
 
