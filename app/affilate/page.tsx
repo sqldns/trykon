@@ -39,13 +39,12 @@ export default function AffiliatePage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, ip }),
     })
-    if (res.ok) {
+    const data = await res.json()
+    if (res.status === 200) {
       setStatus("success")
       if (typeof window !== "undefined") {
         localStorage.setItem("trykonaffiliate-claimed", "1")
       }
-    } else if (res.status === 429) {
-      setStatus("claimed")
     } else {
       setStatus("error")
     }

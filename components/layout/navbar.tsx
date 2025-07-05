@@ -1,13 +1,12 @@
 "use client"
 
-import { motion } from "framer-motion"
+import { motion, AnimatePresence } from "framer-motion"
 import Link from "next/link"
 import { GlowMenu } from "@/components/ui/glow-menu"
 import { useAuth } from "@/hooks/use-auth"
 import { useCart } from "@/hooks/use-cart"
-import { LogOut } from "lucide-react"
+import { LogOut, X, Menu, User, ShoppingCart, Headphones } from "lucide-react"
 import { useState, useEffect } from "react"
-import { Menu } from "lucide-react"
 
 export function Navbar() {
   const { isAuthenticated, user, logout } = useAuth()
@@ -23,6 +22,55 @@ export function Navbar() {
     }
     return () => { document.body.style.overflow = "" }
   }, [mobileOpen])
+
+  const mobileMenuItems = [
+    {
+      icon: <Menu className="h-6 w-6" />,
+      label: "Men",
+      href: "/men",
+      gradient: "radial-gradient(circle, rgba(59,130,246,0.2) 0%, rgba(37,99,235,0.1) 50%, rgba(29,78,216,0) 100%)",
+      iconColor: "text-blue-400",
+    },
+    {
+      icon: <Menu className="h-6 w-6" />,
+      label: "Drops",
+      href: "/drops",
+      gradient: "radial-gradient(circle, rgba(249,115,22,0.2) 0%, rgba(234,88,12,0.1) 50%, rgba(194,65,12,0) 100%)",
+      iconColor: "text-orange-400",
+    },
+    {
+      icon: <Headphones className="h-6 w-6" />,
+      label: "Support",
+      href: "/support",
+      gradient: "radial-gradient(circle, rgba(34,197,94,0.2) 0%, rgba(22,163,74,0.1) 50%, rgba(21,128,61,0) 100%)",
+      iconColor: "text-green-400",
+    },
+    {
+      icon: <User className="h-6 w-6" />,
+      label: "Profile",
+      href: isAuthenticated ? "/profile" : "/auth/signin",
+      gradient: "radial-gradient(circle, rgba(139,69,19,0.2) 0%, rgba(160,82,45,0.1) 50%, rgba(101,67,33,0) 100%)",
+      iconColor: "text-amber-400",
+      requiresAuth: true,
+    },
+    {
+      icon: (
+        <div className="relative">
+          <ShoppingCart className="h-6 w-6" />
+          {itemCount > 0 && (
+            <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium">
+              {itemCount > 9 ? "9+" : itemCount}
+            </span>
+          )}
+        </div>
+      ),
+      label: "Cart",
+      href: isAuthenticated ? "/cart" : "/auth/signin",
+      gradient: "radial-gradient(circle, rgba(239,68,68,0.2) 0%, rgba(220,38,38,0.1) 50%, rgba(185,28,28,0) 100%)",
+      iconColor: "text-red-400",
+      requiresAuth: true,
+    },
+  ]
 
   return (
     <motion.header
@@ -105,68 +153,156 @@ export function Navbar() {
         </motion.div>
 
         {/* Mobile Hamburger */}
-        <button
-          className="md:hidden flex items-center justify-center p-2 rounded-lg bg-white/10 hover:bg-white/20 transition-colors"
+        <motion.button
+          className="md:hidden flex items-center justify-center p-3 rounded-xl bg-white/10 hover:bg-white/20 transition-all duration-300 backdrop-blur-lg border border-white/20"
           onClick={() => setMobileOpen((v) => !v)}
           aria-label="Open menu"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
         >
-          <Menu className="h-7 w-7 text-white" />
-        </button>
+          <Menu className="h-6 w-6 text-white" />
+        </motion.button>
       </div>
 
       {/* Mobile Drawer */}
-      {mobileOpen && (
-        <motion.div
-          className="md:hidden fixed inset-0 z-[100] bg-black/90 flex flex-col items-center justify-center gap-8 px-4 py-8 overflow-y-auto"
-          initial={{ opacity: 0, y: -40 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -40 }}
-          aria-modal="true"
-          role="dialog"
-        >
-          <button
-            className="absolute top-6 right-6 text-white text-3xl"
-            onClick={() => setMobileOpen(false)}
-            aria-label="Close menu"
+      <AnimatePresence>
+        {mobileOpen && (
+          <motion.div
+            className="md:hidden fixed inset-0 z-[100] bg-gradient-to-br from-black/95 via-black/90 to-black/95 backdrop-blur-xl"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            aria-modal="true"
+            role="dialog"
           >
-            ×
-          </button>
-          <div className="w-full flex flex-col items-center gap-8 mt-12">
-            <GlowMenu itemCount={itemCount} />
-            <div className="flex flex-col gap-4 w-full items-center">
-              {isAuthenticated ? (
-                <>
-                  <span className="text-white/80 text-lg text-center">Welcome, {user?.username}</span>
-                  <button
-                    onClick={() => { logout(); setMobileOpen(false) }}
-                    className="flex items-center gap-2 text-white/80 hover:text-white transition-colors text-lg justify-center"
+            {/* Close Button */}
+            <motion.button
+              className="absolute top-6 right-6 z-50 flex items-center justify-center p-3 rounded-xl bg-white/10 hover:bg-white/20 transition-all duration-300 backdrop-blur-lg border border-white/20"
+              onClick={() => setMobileOpen(false)}
+              aria-label="Close menu"
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.8 }}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <X className="h-6 w-6 text-white" />
+            </motion.button>
+
+            {/* Mobile Menu Content */}
+            <div className="flex flex-col items-center justify-center min-h-screen px-6 py-20">
+              {/* Logo in Mobile Menu */}
+              <motion.div
+                className="mb-12"
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+              >
+                <Link href="/" className="text-white text-3xl font-bold tracking-wider">
+                  TRYKON
+                </Link>
+              </motion.div>
+
+              {/* Navigation Items */}
+              <motion.div
+                className="w-full max-w-sm space-y-4"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+              >
+                {mobileMenuItems.map((item, index) => (
+                  <motion.div
+                    key={item.label}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.3 + index * 0.1 }}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
                   >
-                    <LogOut className="h-5 w-5" />
-                    Logout
-                  </button>
-                </>
-              ) : (
-                <>
-                  <Link
-                    href="/auth/signin"
-                    className="text-white/80 hover:text-white transition-colors text-lg font-medium text-center"
-                    onClick={() => setMobileOpen(false)}
-                  >
-                    Sign In
-                  </Link>
-                  <Link
-                    href="/auth/signup"
-                    className="bg-white text-black px-6 py-3 rounded-lg hover:bg-white/90 transition-colors text-lg font-medium text-center"
-                    onClick={() => setMobileOpen(false)}
-                  >
-                    Sign Up
-                  </Link>
-                </>
-              )}
+                    <Link
+                      href={item.href}
+                      onClick={() => setMobileOpen(false)}
+                      className="group relative block w-full p-4 rounded-2xl bg-white/5 hover:bg-white/10 transition-all duration-300 backdrop-blur-lg border border-white/10 hover:border-white/20"
+                    >
+                      {/* Glow Effect */}
+                      <div
+                        className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                        style={{ background: item.gradient }}
+                      />
+                      
+                      {/* Content */}
+                      <div className="relative z-10 flex items-center gap-4">
+                        <div className={`transition-colors duration-300 group-hover:${item.iconColor}`}>
+                          {item.icon}
+                        </div>
+                        <span className="text-white/90 group-hover:text-white text-lg font-medium transition-colors duration-300">
+                          {item.label}
+                        </span>
+                      </div>
+                    </Link>
+                  </motion.div>
+                ))}
+              </motion.div>
+
+              {/* Auth Section */}
+              <motion.div
+                className="w-full max-w-sm mt-8 pt-8 border-t border-white/10"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.6 }}
+              >
+                {isAuthenticated ? (
+                  <div className="space-y-4">
+                    <div className="text-center">
+                      <span className="text-white/70 text-lg">Welcome back,</span>
+                      <div className="text-white text-xl font-semibold mt-1">{user?.username}</div>
+                    </div>
+                    <motion.button
+                      onClick={() => { logout(); setMobileOpen(false) }}
+                      className="w-full flex items-center justify-center gap-3 p-4 rounded-2xl bg-white/10 hover:bg-white/20 transition-all duration-300 backdrop-blur-lg border border-white/20 text-white/90 hover:text-white text-lg font-medium"
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      <LogOut className="h-5 w-5" />
+                      Sign Out
+                    </motion.button>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.7 }}
+                    >
+                      <Link
+                        href="/auth/signin"
+                        onClick={() => setMobileOpen(false)}
+                        className="w-full flex items-center justify-center p-4 rounded-2xl bg-white/10 hover:bg-white/20 transition-all duration-300 backdrop-blur-lg border border-white/20 text-white/90 hover:text-white text-lg font-medium"
+                      >
+                        Sign In
+                      </Link>
+                    </motion.div>
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.8 }}
+                    >
+                      <Link
+                        href="/auth/signup"
+                        onClick={() => setMobileOpen(false)}
+                        className="w-full flex items-center justify-center p-4 rounded-2xl bg-white text-black hover:bg-white/90 transition-all duration-300 text-lg font-semibold"
+                      >
+                        Create Account
+                      </Link>
+                    </motion.div>
+                  </div>
+                )}
+              </motion.div>
             </div>
-          </div>
-        </motion.div>
-      )}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.header>
   )
 }
